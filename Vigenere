@@ -1,0 +1,47 @@
+public class Vigenere extends Substitution {
+    private static int counter = 0;
+    public static int[] codeMap;
+    public Vigenere() {
+        codeMap = new int[1];
+        codeMap[0] = 0;
+    }
+    public Vigenere(String keyCode) {
+        codeMap = VMap(keyCode);
+    }
+    
+    private int[] VMap(String keyCode) {
+        codeMap = new int[keyCode.length()];
+
+        for (int i = 0; i < keyCode.length(); i++) {
+            codeMap[i] = (keyCode.charAt(i) - 'A');
+        }
+        return codeMap;
+    }
+    
+    public char encrypt(char c) {
+        int shift = codeMap[(counter % codeMap.length)];
+        if (Character.isLetter(c))
+            c = Caesar.cShift(c, shift);
+
+        counter++;
+        return c;
+    }
+    
+    public char decrypt(char c) {
+        int shift = codeMap[counter];
+        if (Character.isLetter(c))
+            c = Caesar.cShift(c, -shift);
+
+        counter++;
+        return c;
+    }
+    
+    public static void main(String[] args) {
+        if (paramCheck(args, "Vigenere encrypt key")) {
+            String userText = args[2];
+            Cipher v = new Vigenere(args[1]);
+            String solved = args[0].equals("encrypt") ? v.encrypt(userText) : v.decrypt(userText);
+            System.out.println(solved);
+        }
+    }
+}
