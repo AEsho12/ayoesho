@@ -1,0 +1,45 @@
+public class MonoAlphaSubstitution extends Substitution {
+    public char[] charMap = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    public MonoAlphaSubstitution() {}
+    public MonoAlphaSubstitution(String strCode) {
+        charMap = cipherMap(strCode);
+    }
+
+    private char[] cipherMap(String strCode) {
+        int charIndex;
+        for (int i = 0; i <= (strCode.length() - 2); i = i + 2) {
+            char c = strCode.charAt(i);
+            if (Character.isLetter(c)) {
+                charIndex = Character.isUpperCase(c) ? (c - 'A' + 26) : (c - 'a'); 
+            } else
+                continue;
+            charMap[charIndex] = strCode.charAt(i + 1);
+        }
+        return charMap;
+    }
+    public char encrypt(char c) {
+        int index;
+        if (Character.isLetter(c)){
+            index = (Character.isLowerCase(c)) ? (c - 'a') : (c - 'A' + 26);
+            c = charMap[(char)index];
+        }
+        return c;
+    }
+    public char decrypt(char c) {
+        for (int i = 0; i < charMap.length; i++) {
+            if (charMap[i] == c) {
+                c = (i < 26) ? (char)(i + 'a') : (char)(i + 'A' - 26);
+                break;
+            }
+        }
+        return c;
+    }
+    public static void main(String[] args) {
+        if (paramCheck(args, "MonoAlphaSubstitution encrypt key")) {
+            String userText = args[2];
+            Cipher m = new MonoAlphaSubstitution(args[1]);
+            String solved = args[0].equals("encrypt") ? m.encrypt(userText) : m.decrypt(userText);
+            System.out.println(solved);
+        }
+    }
+}
