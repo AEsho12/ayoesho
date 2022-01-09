@@ -1,0 +1,118 @@
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.util.Queue;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+public class Press {
+  private String bookPath;
+  private int booksPerEdition;
+  private Map<String, Integer> edition;
+  private Map<String, Queue<Book>> shelf;
+
+  private final static Pattern SPLIT_PATTERN = Pattern.compile( "^\\*\\*\\*[^*]+\\*\\*\\*$", Pattern.MULTILINE );
+  private final static Pattern META_PATTERN = Pattern.compile( "^([^:\n]+): (.+)$", Pattern.MULTILINE );
+
+  public Press( String p, int n ) {
+    bookPath = p;
+    booksPerEdition = n;
+    edition = new HashMap<>();
+    shelf = new HashMap<>();
+
+    File directory = new File( p );
+    File[] books = directory.listFiles();
+
+    for ( int i = 0; i < books.length; ++i ) {
+      String id = books[i].getName();
+      shelf.put( id, new LinkedList( print( id ) ) );
+    }
+  }
+  private List<Book> print( String id ) {
+    String fileContent;
+
+    try {
+      fileContent = new String( Files.readAllBytes( Paths.get( bookPath, id ) ), StandardCharsets.UTF_8 );
+    } catch ( IOException e ) {
+      System.err.println( String.format( "Unable to read file: %s", e.getMessage() ) );
+      fileContent = "";
+    }
+
+
+    Matcher splitMatcher = SPLIT_PATTERN.matcher( fileContent );
+    splitMatcher.find();
+
+    String header = fileContent.substring( 0, splitMatcher.end() );
+    String content = fileContent.substring( splitMatcher.end() + 1 );
+
+    String title = null, author = null;
+
+    Matcher metaMatcher = META_PATTERN.matcher( header );
+
+    while ( metaMatcher.find() ) {
+      String key = metaMatcher.group( 1 );
+
+      switch ( key ) {
+        case "Author":
+          author = metaMatcher.group( 2 ).trim();
+          break;
+
+        case "Title":
+          title = metaMatcher.group( 2 ).trim();
+          break;
+      }
+    }
+
+    int editionNo = edition.getOrDefault( id, 0 );
+    edition.put( id, ++editionNo );
+
+    List<Book> res = new LinkedList<>();
+
+    for ( int i = 0; i < booksPerEdition; i++ ) {
+      res.add( new Book( title, author, content, editionNo ) );
+    }
+
+    return res;
+  }
+  public List<String> getCatalogue() {
+    return new ArrayList<String>( shelf.keySet() );
+  }
+
+  public List<Book> request( String id, int amount ) throws IllegalArgumentException {
+    if ( !shelf.containsKey( id ) ) {
+      throw new IllegalArgumentException( String.format( "No such book \"%s\" exists", id ) );
+    }
+
+    LinkedList<Book> res = new LinkedList<Book>();
+    Queue<Book> shelfBooks = shelf.get( id );
+
+    while ( amount > 0 ) {
+      if ( shelfBooks.isEmpty() ) {
+        shelfBooks.addAll( print( id ) );
+      }
+
+      res.add( shelfBooks.remove() );
+      amount--;
+    }
+
+    return res;
+  }
+
+  private static int nthIndex( String text, String toFind, int n ) {
+    int i = 0;
+
+    while ( n > 0 ) {
+      i = text.indexOf( toFind, i + 1 );
+      --n;
+    }
+
+    return i;
+  }
+}
