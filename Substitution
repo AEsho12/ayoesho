@@ -1,0 +1,32 @@
+public abstract class Substitution implements Cipher {
+    public abstract char encrypt(char c);
+    public abstract char decrypt(char c);
+    public String encrypt(String plaintext) {
+        String cryptotext = "";
+        for (int i = 0; i < plaintext.length(); i++) {
+            cryptotext += encrypt(plaintext.charAt(i));
+        }
+        return cryptotext;
+    }
+    public String decrypt(String cryptotext) {
+        String plaintext = "";
+        for (int i = 0; i < cryptotext.length(); i++) {
+            plaintext += decrypt(cryptotext.charAt(i));
+        }
+        return plaintext;
+    }
+    public static boolean paramCheck(String[] args, String type) {
+        boolean check = false;
+        if (args.length < 3) {
+            System.out.println("Too few parameters!\nUsage: java " + type + " \"cipher text\"");
+        } else if (args.length > 3) {
+            System.out.println("Too many parameters!\nUsage: java " + type + " \"cipher text\"");
+        } else if (!((args[0]).equals("encrypt")) && !((args[0]).equals("decrypt"))) {
+            System.out.println("The first parameter must be \"encrypt\" or \"decrypt\"!\nUsage: java " + type + " \"cipher text\"");
+        } else {
+            check = true;
+
+        }
+        return check;
+    }
+}
