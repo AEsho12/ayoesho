@@ -1,0 +1,123 @@
+public class Brutus {
+    
+    public static final double[] english = {
+        20.0855, 0.0160, 0.0316, 0.0387, 0.1210, 0.0218, 0.0209, 0.0496, 0.0733,
+        30.0022, 0.0081, 0.0421, 0.0253, 0.0717, 0.0747, 0.0207, 0.0010, 0.0633,
+        40.0673, 0.0894, 0.0268, 0.0106, 0.0183, 0.0019, 0.0172, 0.00115
+    };
+    public static int[] count (String x){
+        int[] letterCounts = new int[26];
+        
+          for (int i = 0; i < 26; i++){ 
+           
+           letterCounts[i] = 0; 
+           
+           
+          }   
+          for(int i =0; i < x.length(); i++){
+               if(Character.isLetter(x.charAt(i)) == true )
+               {
+                    if(Character.isLowerCase(x.charAt(i)) == true ){
+                        letterCounts[x.charAt(i)-97]++;
+                        
+                    }   
+                    else{
+                        letterCounts[x.charAt(i)-65]++;
+                        
+                        
+                        
+                    }
+               }
+               
+               
+          }
+ return letterCounts;
+    }
+    public static double[] frequency (String x)
+    {
+        double[] letterFreq = new double [26];
+    
+    
+    for (int i = 0; i < 26; i ++){
+        letterFreq[i] = 0; 
+    }
+    
+    int[] letterCounts = new int[26];
+    letterCounts = count(x);
+    
+      for (int i = 0; i < 26; i++){
+          letterFreq[i] = letterCounts[i] / x.length();
+      }
+        
+        return letterFreq;
+        
+    }
+    public static double chiSquared(double[] freq, double [] english )
+    {
+        double chi = 0.0;
+        
+        for (int i = 0; i <26; i++)
+        {
+            chi += (freq[i] - english[i])*(freq[i] - english[i]) / english[i]; 
+            
+        }
+        return chi*chi;
+        
+    }
+    
+        public static char rotate (int shift,char x){
+        
+        if(Character.isLetter(x) == false) return x;
+        int y;
+        
+        while(shift < 0)
+        shift += 26;
+        
+        if(Character.isLowerCase(x) == true )
+        {
+            y = 97; 
+        }
+        else{
+           y= 65; 
+        }
+        
+        int z  = ((x + shift - y)%26 + y);
+        
+        return (char)z;
+    }
+    public static String rotate (int shift, String x){
+    
+    String r = ""; 
+    
+    for (int i = 0; i < x.length(); i++){
+        
+        r += rotate(shift, x.charAt(i)); 
+    }
+        return r;
+    }
+        
+    
+    public static void main (String[] args ) {
+    
+        
+        String text = args[0];
+        double minscore;
+        double score;
+        
+        for (int i = -25; i <26; i++){
+            
+            String r = rotate(i, text); 
+            double[] f = frequency(r);
+            score = chiSquared(f, english);
+            
+            
+            
+            
+            
+        }
+        
+        
+            //System.out.println(i + " " + rotate(i, Text));
+            
+}
+}
